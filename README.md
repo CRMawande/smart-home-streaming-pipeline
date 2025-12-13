@@ -23,14 +23,15 @@ This project uses the **Open Smart Home IoT/IEQ/Energy Data** dataset from Kaggl
 
 - Docker Desktop installed and running
 - Python 3.9+
+- PowerShell 
 
 ## Installation and Setup
 
 ### 1. Clone the Repository
 
-```bah
+```bash
 git clone https://github.com/CRMawande/smart-home-streaming-pipeline.git
-cd streaming-pipeline
+cd smart-home-streaming-pipeline
 ```
 
 ### 2. Data Setup Instructions
@@ -67,8 +68,8 @@ docker ps
 
 ```bash
 # Deploy the connector
-curl.exe -X POST http://localhost:8083/connectors \`
-  -H "Content-Type: application/json" \`
+curl.exe -X POST http://localhost:8083/connectors `
+  -H "Content-Type: application/json" `
   -d "@connect/kafka-connect-config.json"
 
 # Check connector status
@@ -79,13 +80,14 @@ curl.exe http://localhost:8083/connectors/timescaledb-sink/status | ConvertFrom-
 
 ```bash
 # Get TimescaleDB container name
-\`$timescaleContainer = docker ps --filter "name=timescaledb" --format "{{.Names}}"
+$timescaleContainer = docker ps --filter "name=timescaledb" --format "{{.Names}}"
+docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(*) FROM measurements;"
 
 # Check row count
-docker exec -it \`$timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(*) FROM measurements;"
+docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(*) FROM measurements;"
 
 # View latest data
-docker exec -it \`$timescaleContainer psql -U sensor -d sensordb -c "SELECT * FROM measurements ORDER BY time DESC LIMIT 10;"
+docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT * FROM measurements ORDER BY time DESC LIMIT 10;"
 ```
 
 ### 6. Access Grafana
@@ -135,7 +137,7 @@ The table is converted to a TimescaleDB hypertable for optimized time-series que
 # Stop all services
 docker-compose down
 
-# Stop and remove volumes (clean slate)
+# Stop and remove volumes 
 docker-compose down -v
 ```
 
