@@ -1,0 +1,23 @@
+@"
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+kafka/measurements/
+*.csv
+*.zip
+connect/libs/
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+grafana/data/
+*.log
+"@ | Out-File -FilePath ".gitignore" -Encoding UTF8
+Get-Content .gitignore
