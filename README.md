@@ -19,19 +19,6 @@ This project implements a scalable stream processing pipeline that ingests IoT s
 
 This project uses the **Open Smart Home IoT/IEQ/Energy Data** dataset from Kaggle.
 
-
-### Data Setup Instructions
-
-1. Download the dataset from Kaggle ([Open Smart Home IoT/IEQ/Energy Data
-](https://www.kaggle.com/datasets/claytonmiller/open-smart-home-iotieqenergy-data))
-2. Extract the ZIP file
-3. Create the measurements directory in your project:
-   ```bash
-   New-Item -ItemType Directory -Force -Path "kafka/measurements"
-   ```
-4. Navigate to the extracted folder and locate the **Measurements** folder
-5. Copy **all CSV files** from the Measurements folder to \`kafka/measurements/\`
-
 ## Prerequisites
 
 - Docker Desktop installed and running
@@ -46,9 +33,19 @@ git clone https://github.com/CRMawande/smart-home-streaming-pipeline.git
 cd streaming-pipeline
 ```
 
-### 2. Download and Prepare Dataset
+### 2. Data Setup Instructions
 
-Follow the **Data Setup Instructions** above to populate \`kafka/measurements/\` with CSV files.
+Populate \`kafka/measurements/\` with CSV files using the instructions below
+
+1. Download the dataset from Kaggle ([Open Smart Home IoT/IEQ/Energy Data
+](https://www.kaggle.com/datasets/claytonmiller/open-smart-home-iotieqenergy-data))
+2. Extract the ZIP file
+3. Create the measurements directory in your project:
+   ```bash
+   New-Item -ItemType Directory -Force -Path "kafka/measurements"
+   ```
+4. Navigate to the extracted folder and locate the **Measurements** folder
+5. Copy **all CSV files** from the Measurements folder to \`kafka/measurements/\`
 
 ### 3. Start the Pipeline
 
