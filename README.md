@@ -1,4 +1,3 @@
-@"
 # Smart Home IoT Stream Processing Pipeline
 
 A real-time data engineering pipeline for processing and visualizing smart home sensor data using Apache Kafka, TimescaleDB, and Grafana.
@@ -20,42 +19,38 @@ This project implements a scalable stream processing pipeline that ingests IoT s
 
 This project uses the **Open Smart Home IoT/IEQ/Energy Data** dataset from Kaggle.
 
-**Dataset URL**: https://www.kaggle.com/datasets/gauravfof/open-smart-home-iotieqenergy-data
-
-### Data Setup Instructions
-
-1. Download the dataset from Kaggle (link above)
-2. Extract the ZIP file
-3. Create the measurements directory in your project:
-   \`\`\`powershell
-   New-Item -ItemType Directory -Force -Path "kafka/measurements"
-   \`\`\`
-4. Navigate to the extracted folder and locate the **Measurements** folder
-5. Copy **all CSV files** from the Measurements folder to \`kafka/measurements/\`
-
 ## Prerequisites
 
 - Docker Desktop installed and running
-- PowerShell (Windows) or Bash (Linux/Mac)
-- At least 4GB of available RAM
-- 2GB of free disk space
+- Python 3.9+
+- PowerShell 
 
 ## Installation and Setup
 
 ### 1. Clone the Repository
 
-\`\`\`powershell
+```bash
 git clone https://github.com/CRMawande/smart-home-streaming-pipeline.git
-cd streaming-pipeline
-\`\`\`
+cd smart-home-streaming-pipeline
+```
 
-### 2. Download and Prepare Dataset
+### 2. Data Setup Instructions
 
-Follow the **Data Setup Instructions** above to populate \`kafka/measurements/\` with CSV files.
+Populate \`kafka/measurements/\` with CSV files using the instructions below
+
+1. Download the dataset from Kaggle ([Open Smart Home IoT/IEQ/Energy Data
+](https://www.kaggle.com/datasets/claytonmiller/open-smart-home-iotieqenergy-data))
+2. Extract the ZIP file
+3. Create the measurements directory in your project:
+   ```bash
+   New-Item -ItemType Directory -Force -Path "kafka/measurements"
+   ```
+4. Navigate to the extracted folder and locate the **Measurements** folder
+5. Copy **all CSV files** from the Measurements folder to \`kafka/measurements/\`
 
 ### 3. Start the Pipeline
 
-\`\`\`powershell
+```bash
 # Stop any existing containers
 docker-compose down
 
@@ -67,39 +62,40 @@ Start-Sleep -Seconds 40
 
 # Verify all containers are running
 docker ps
-\`\`\`
+```
 
 ### 4. Deploy Kafka Connect Sink Connector
 
-\`\`\`powershell
+```bash
 # Deploy the connector
-curl.exe -X POST http://localhost:8083/connectors \`
-  -H "Content-Type: application/json" \`
+curl.exe -X POST http://localhost:8083/connectors `
+  -H "Content-Type: application/json" `
   -d "@connect/kafka-connect-config.json"
 
 # Check connector status
 curl.exe http://localhost:8083/connectors/timescaledb-sink/status | ConvertFrom-Json | ConvertTo-Json -Depth 10
-\`\`\`
+```
 
 ### 5. Verify Data Flow
 
-\`\`\`powershell
+```bash
 # Get TimescaleDB container name
-\`$timescaleContainer = docker ps --filter "name=timescaledb" --format "{{.Names}}"
+$timescaleContainer = docker ps --filter "name=timescaledb" --format "{{.Names}}"
+docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(*) FROM measurements;"
 
 # Check row count
-docker exec -it \`$timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(*) FROM measurements;"
+docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(*) FROM measurements;"
 
 # View latest data
-docker exec -it \`$timescaleContainer psql -U sensor -d sensordb -c "SELECT * FROM measurements ORDER BY time DESC LIMIT 10;"
-\`\`\`
+docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT * FROM measurements ORDER BY time DESC LIMIT 10;"
+```
 
 ### 6. Access Grafana
 
-\`\`\`powershell
+```bash
 # Open Grafana in browser
 Start-Process "http://localhost:3000"
-\`\`\`
+```
 
 **Default Credentials**:
 - Username: \`admin\`
@@ -119,112 +115,37 @@ The TimescaleDB data source is pre-configured. You can start creating dashboards
 
 ## Database Schema
 
-\`\`\`sql
+```bash
 CREATE TABLE measurements (
     time        TIMESTAMPTZ       NOT NULL,
     location    TEXT              NOT NULL,
     metric      TEXT              NOT NULL,
     value       DOUBLE PRECISION  NOT NULL
 );
-\`\`\`
+```
 
 The table is converted to a TimescaleDB hypertable for optimized time-series queries.
 
-## Sample Grafana Queries
+## Grafana Visuals
 
-### Temperature Over Time
-\`\`\`sql
-SELECT
-  time AS "time",
-  location,
-  value as "temperature"
-FROM measurements
-WHERE
-  metric = 'Temperature'
-  AND \$__timeFilter(time)
-ORDER BY time
-\`\`\`
+<img width="862" height="770" alt="image" src="https://github.com/user-attachments/assets/70c198ac-e4e6-42db-9ee9-aa120f1e5b20" />
 
-### Average Humidity by Location
-\`\`\`sql
-SELECT
-  time_bucket('5 minutes', time) AS "time",
-  location,
-  AVG(value) as avg_humidity
-FROM measurements
-WHERE
-  metric = 'Humidity'
-  AND \$__timeFilter(time)
-GROUP BY time_bucket('5 minutes', time), location
-ORDER BY time
-\`\`\`
-
-### Latest Measurements by Metric
-\`\`\`sql
-SELECT
-  metric,
-  location,
-  value,
-  time
-FROM measurements
-WHERE time > NOW() - INTERVAL '1 minute'
-ORDER BY time DESC
-LIMIT 20
-\`\`\`
-
-## Monitoring and Debugging
-
-### View Producer Logs
-\`\`\`powershell
-docker logs streaming-pipeline-producer-1 --tail 50
-\`\`\`
-
-### View Kafka Connect Logs
-\`\`\`powershell
-docker logs streaming-pipeline-kafka-connect-1 --tail 100
-\`\`\`
-
-### Check Kafka Topic Messages
-\`\`\`powershell
-docker exec -it streaming-pipeline-kafka-1 kafka-console-consumer --bootstrap-server localhost:9092 --topic smart-home-measurements --from-beginning --max-messages 5
-\`\`\`
-
-### View All Available Metrics
-\`\`\`powershell
-docker exec -it \`$timescaleContainer psql -U sensor -d sensordb -c "SELECT DISTINCT metric FROM measurements ORDER BY metric;"
-\`\`\`
-
-### View All Locations
-\`\`\`powershell
-docker exec -it \`$timescaleContainer psql -U sensor -d sensordb -c "SELECT DISTINCT location FROM measurements ORDER BY location;"
-\`\`\`
 
 ## Stopping the Pipeline
 
-\`\`\`powershell
+```bash
 # Stop all services
 docker-compose down
 
-# Stop and remove volumes (clean slate)
+# Stop and remove volumes 
 docker-compose down -v
-\`\`\`
+```
 
 
 ## Architecture Diagram
 
-\`\`\`
-┌─────────────┐     ┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   Kafka     │────▶│   Apache    │────▶│    Kafka     │────▶│ TimescaleDB │
-│  Producer   │     │    Kafka    │     │   Connect    │     │   (PostgreSQL)│
-│  (Python)   │     │   Broker    │     │ (JDBC Sink)  │     │             │
-└─────────────┘     └─────────────┘     └──────────────┘     └─────────────┘
-                           │                                          │
-                           │                                          │
-                    ┌──────▼──────┐                          ┌────────▼────────┐
-                    │  Zookeeper  │                          │    Grafana      │
-                    │             │                          │ (Visualization) │
-                    └─────────────┘                          └─────────────────┘
-\`\`\`
+<img width="1038" height="355" alt="image" src="https://github.com/user-attachments/assets/97a00775-1695-4d1c-b0eb-c56c66fad4f8" />
+
 
 ## Technologies Used
 
@@ -237,34 +158,8 @@ docker-compose down -v
 
 ## Project Structure
 
-\`\`\`
-streaming-pipeline/
-├── kafka/
-│   ├── Dockerfile              # Producer container configuration
-│   ├── producer.py             # Kafka producer script
-│   └── measurements/           # CSV data files (not in git)
-├── connect/
-│   └── kafka-connect-config.json  # JDBC sink connector config
-├── timescaledb/
-│   └── init.sql                # Database initialization
-├── grafana/
-│   └── provisioning/
-│       ├── datasources/
-│       │   └── timescaledb.yml
-│       └── dashboards/
-│           └── dashboard.yml
-├── docker-compose.yml          # Service orchestration
-├── .gitignore
-└── README.md
-\`\`\`
-  
+<img width="349" height="518" alt="image" src="https://github.com/user-attachments/assets/f847e059-683f-4cd2-85d6-2ce162a8ea19" />
 
-## Performance Metrics
-
-- **Ingestion Rate**: ~2-3 messages per second per sensor
-- **Latency**: < 1 second end-to-end
-- **Storage**: ~100K measurements = ~8MB in TimescaleDB
-- **Retention**: Unlimited (configurable with TimescaleDB retention policies)
 
 ## Future Enhancements
 
@@ -277,12 +172,18 @@ streaming-pipeline/
 
 
 ## References
+Apache Software Foundation. (2010). Apache Zookeeper Documentation. https://zookeeper.apache.org/
 
-- Apache Software Foundation. (2025). Apache Kafka Documentation. https://kafka.apache.org
-- Confluent Inc. (2025). Kafka Connect JDBC Connector. https://docs.confluent.io/kafka-connectors/jdbc/
-- Docker Inc. (2025). Docker Documentation. https://docs.docker.com/
-- Grafana Labs. (2025). Grafana Documentation. https://grafana.com/docs/
-- Schneider, G. F., & Rasmussen, M. H. (2018). Technical Building Systems/Open Smart Home Data
-- Timescale Inc. (2025). TimescaleDB Documentation. https://docs.timescale.com/
-"@ | Out-File -FilePath "README.md" -Encoding UTF8
+Apache Software Foundation. (2025). Apache Kafka: A Distributed Streaming Platform. https://kafka.apache.org
+
+Confluent Inc. (2025). Kafka Connect JDBC Connector. https://docs.confluent.io/kafka-connectors/jdbc/current/overview.html
+
+Docker Inc. (2025). Docker Documentation. https://docs.docker.com/
+
+Grafana Labs. (2025). Grafana Documentation. https://grafana.com/docs/
+
+Schneider, G. F., & Rasmussen, M. H. (2018). Technical Building Systems/Open Smart Home Data: First release of Open Smart Home Data Set.
+
+Timescale Inc. (2025). Tiger Data: PostgreSQL++ for Time Series, Analytics & AI. https://www.tigerdata.com/
+
 
