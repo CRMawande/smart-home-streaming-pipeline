@@ -66,6 +66,13 @@ services:
 
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
     command:
       - bash
       - -c

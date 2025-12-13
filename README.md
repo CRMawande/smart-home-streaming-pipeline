@@ -45,7 +45,7 @@ This project uses the **Open Smart Home IoT/IEQ/Energy Data** dataset from Kaggl
 ### 1. Clone the Repository
 
 \`\`\`powershell
-git clone https://github.com/YOUR_USERNAME/streaming-pipeline.git
+git clone https://github.com/CRMawande/smart-home-streaming-pipeline.git
 cd streaming-pipeline
 \`\`\`
 
@@ -285,3 +285,4 @@ streaming-pipeline/
 - Schneider, G. F., & Rasmussen, M. H. (2018). Technical Building Systems/Open Smart Home Data
 - Timescale Inc. (2025). TimescaleDB Documentation. https://docs.timescale.com/
 "@ | Out-File -FilePath "README.md" -Encoding UTF8
+
