@@ -67,7 +67,6 @@ curl.exe http://localhost:8083/connectors/timescaledb-sink/status | ConvertFrom-
 ```bash
 # Get TimescaleDB container name
 $timescaleContainer = docker ps --filter "name=timescaledb" --format "{{.Names}}"
-docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(*) FROM measurements;"
 
 # Check row count
 docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(*) FROM measurements;"
