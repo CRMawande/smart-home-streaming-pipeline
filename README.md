@@ -19,11 +19,11 @@ This project implements a scalable stream processing pipeline that ingests IoT s
 
 This project uses the **Open Smart Home IoT/IEQ/Energy Data** dataset from Kaggle.
 
-**Dataset URL**: https://www.kaggle.com/datasets/gauravfof/open-smart-home-iotieqenergy-data
 
 ### Data Setup Instructions
 
-1. Download the dataset from Kaggle (link above)
+1. Download the dataset from Kaggle ([Open Smart Home IoT/IEQ/Energy Data
+](https://www.kaggle.com/datasets/claytonmiller/open-smart-home-iotieqenergy-data))
 2. Extract the ZIP file
 3. Create the measurements directory in your project:
    ```bash
