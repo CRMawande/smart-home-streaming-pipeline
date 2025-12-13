@@ -17,7 +17,7 @@ This project implements a scalable stream processing pipeline that ingests IoT s
 
 ## Dataset
 
-This project uses the **Open Smart Home IoT/IEQ/Energy Data** dataset from Kaggle.
+This project uses the  [Open Smart Home IoT/IEQ/Energy Data](https://www.kaggle.com/datasets/claytonmiller/open-smart-home-iotieqenergy-data) dataset from Kaggle
 
 ## Prerequisites
 
@@ -34,21 +34,7 @@ git clone https://github.com/CRMawande/smart-home-streaming-pipeline.git
 cd smart-home-streaming-pipeline
 ```
 
-### 2. Data Setup Instructions
-
-Populate \`kafka/measurements/\` with CSV files using the instructions below
-
-1. Download the dataset from Kaggle ([Open Smart Home IoT/IEQ/Energy Data
-](https://www.kaggle.com/datasets/claytonmiller/open-smart-home-iotieqenergy-data))
-2. Extract the ZIP file
-3. Create the measurements directory in your project:
-   ```bash
-   New-Item -ItemType Directory -Force -Path "kafka/measurements"
-   ```
-4. Navigate to the extracted folder and locate the **Measurements** folder
-5. Copy **all CSV files** from the Measurements folder to \`kafka/measurements/\`
-
-### 3. Start the Pipeline
+### 2. Start the Pipeline
 
 ```bash
 # Stop any existing containers
@@ -64,7 +50,7 @@ Start-Sleep -Seconds 40
 docker ps
 ```
 
-### 4. Deploy Kafka Connect Sink Connector
+### 3. Deploy Kafka Connect Sink Connector
 
 ```bash
 # Deploy the connector
@@ -76,7 +62,7 @@ curl.exe -X POST http://localhost:8083/connectors `
 curl.exe http://localhost:8083/connectors/timescaledb-sink/status | ConvertFrom-Json | ConvertTo-Json -Depth 10
 ```
 
-### 5. Verify Data Flow
+### 4. Verify Data Flow
 
 ```bash
 # Get TimescaleDB container name
@@ -90,7 +76,7 @@ docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT COUNT(
 docker exec -it $timescaleContainer psql -U sensor -d sensordb -c "SELECT * FROM measurements ORDER BY time DESC LIMIT 10;"
 ```
 
-### 6. Access Grafana
+### 5. Access Grafana
 
 ```bash
 # Open Grafana in browser
