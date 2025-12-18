@@ -44,7 +44,7 @@ docker-compose down
 docker-compose up --build -d
 
 # Wait 40 seconds for services to initialize
-Start-Sleep -Seconds 40
+Start-Sleep -Seconds 120
 
 # Verify all containers are running
 docker ps
